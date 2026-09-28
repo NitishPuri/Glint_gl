@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "glad/glad.h"
 //
 #include "GLFW/glfw3.h"
@@ -12,9 +15,16 @@
 #define ROOT ""
 #endif
 
+#if defined(_MSC_VER)
+#define DEBUG_BREAK() __debugbreak()
+#else
+#include <csignal>
+#define DEBUG_BREAK() std::raise(SIGTRAP)
+#endif
+
 #ifdef _DEBUG
 #define ASSERT(x) \
-  if (!(x)) __debugbreak();
+  if (!(x)) DEBUG_BREAK();
 
 #define GLCall(x) \
   GLClearError(); \

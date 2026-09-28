@@ -1,5 +1,6 @@
 #include "VBOIndex.h"
 
+#include <cstring>
 #include <map>
 
 // Mostly(Completely) copied from

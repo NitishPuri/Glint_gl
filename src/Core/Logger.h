@@ -1,10 +1,19 @@
 #pragma once
 
 // supress warning due to localtime being unsafe
+#ifdef _MSC_VER
 #pragma warning(disable : 4996)
+#endif
 
 #include <chrono>
+#include <version>
+#if defined(__cpp_lib_format)
 #include <format>
+namespace fmtlib = std;
+#else
+#include <fmt/format.h>
+namespace fmtlib = fmt;
+#endif
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -21,9 +30,9 @@
 
 // Formatter specialization for ImVec2
 template <>
-struct std::formatter<ImVec2> : std::formatter<std::string> {
+struct fmtlib::formatter<ImVec2> : fmtlib::formatter<std::string> {
   auto format(const ImVec2& v, format_context& ctx) const {
-    return std::formatter<std::string>::format(std::format("({}, {})", v.x, v.y), ctx);
+    return fmtlib::formatter<std::string>::format(fmtlib::format("({}, {})", v.x, v.y), ctx);
   }
 };
 class Logger {
@@ -59,13 +68,13 @@ class Logger {
 
   template <typename... Args>
   static void logf(std::string_view format_str, Args... args) {
-    std::string formatted_message = std::vformat(format_str, std::make_format_args(args...));
+    std::string formatted_message = fmtlib::vformat(format_str, fmtlib::make_format_args(args...));
     log_message("LOG", std::clog, formatted_message);
   }
 
   template <typename... Args>
   static void errorf(std::string_view format_str, Args... args) {
-    std::string formatted_message = std::vformat(format_str, std::make_format_args(args...));
+    std::string formatted_message = fmtlib::vformat(format_str, fmtlib::make_format_args(args...));
     log_message("ERROR", std::cerr, formatted_message);
   }
 

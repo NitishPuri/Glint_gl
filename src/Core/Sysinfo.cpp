@@ -1,4 +1,10 @@
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/sysinfo.h>
+#endif
+
+#include <thread>
 
 #include "Window.h"
 
@@ -29,16 +35,23 @@ void printSysinfo() {
   }
 
   // Print system memory info
+#ifdef _WIN32
   MEMORYSTATUSEX memInfo;
   memInfo.dwLength = sizeof(MEMORYSTATUSEX);
   GlobalMemoryStatusEx(&memInfo);
   Logger::log("Total System Memory: ", memInfo.ullTotalPhys / (1024 * 1024), " MB");
   Logger::log("Available System Memory: ", memInfo.ullAvailPhys / (1024 * 1024), " MB");
+#else
+  struct sysinfo memInfo;
+  if (sysinfo(&memInfo) == 0) {
+    unsigned long long unit = memInfo.mem_unit;
+    Logger::log("Total System Memory: ", memInfo.totalram * unit / (1024 * 1024), " MB");
+    Logger::log("Available System Memory: ", memInfo.freeram * unit / (1024 * 1024), " MB");
+  }
+#endif
 
   // Print CPU info
-  SYSTEM_INFO sysInfo;
-  GetSystemInfo(&sysInfo);
-  Logger::log("Number of Processors: ", sysInfo.dwNumberOfProcessors);
+  Logger::log("Number of Processors: ", std::thread::hardware_concurrency());
 
   // Print threading capabilities
   //   Logger::log("Processor Type: ", sysInfo.dwProcessorType);
